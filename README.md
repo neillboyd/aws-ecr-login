@@ -9,6 +9,7 @@ This script and container aid in loging into AWS EC2 Container Registries (ECR) 
     -g|--registries    The AWS account IDs to use for the login. Space separated. (Ex: "123456789101, 98765432101")
     -f|--file-location Where the dockercfg should be saved.
     -i|--interval      How often to loop and refresh credentials (optional - default is 21600 - 6 hours).
+    -s|--s3bucket      What S3 bucket we want to upload the credentials to.
 ```
 
 The script can be run from within a Docker container or stand-alone on either AWS infrastructure or traditional servers. When run in a container, you must mount the host path where you wish the `.dockercfg` file to be written.
@@ -26,5 +27,5 @@ Running on AWS means that the region can be determined automatically via the AWS
 Running on traditional servers means that the region must be provided. Failure to provide the region will result in the script hanging as it attempts to contact the (unavailable) AWS metadata service.
 
 ```
-$ ./ecr-login.sh --region us-east-1 --registries 12345678901 --file-location /home/core/.dockercfg --interval 21600
+$ ./ecr-login.sh --region us-east-1 --registries 12345678901 --file-location /home/core/.dockercfg --interval 21600 --s3bucket bucket-name
 ```

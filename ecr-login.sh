@@ -6,6 +6,7 @@ function usage {
     echo "       -g|--registries    The AWS account IDs to use for the login. Space separated. (Ex: \"123456789101, 98765432101\")"
     echo "       -f|--file-location Where the dockercfg should be saved."
     echo "       -i|--interval      How often to loop and refresh credentials (optional - default is 21600 - 6 hours)."
+    echo "       -s|--s3bucket      What S3 bucket to push the credentials to"
     exit 1
 }
 
@@ -29,6 +30,9 @@ case $key in
     shift;;
     -i|--interval)
     INTERVAL="$2"
+    shift;;
+    -s|--s3bucket)
+    S3BUCKET="$2"
     shift;;
     *)
             # unknown option
@@ -60,6 +64,11 @@ fi
 if [[ -z "$INTERVAL" ]]; then
     log "Custom interval not provided, defaulting to 21600 seconds - 6 hours"
     INTERVAL=21600
+fi
+
+if [[ -z "$S3BUCKET" ]]; then
+    log "S3 Bucket not provided."
+    usage
 fi
 
 JSON_LOCATION="$FILE_LOCATION/.docker/config.json"
@@ -106,6 +115,9 @@ while true; do
     # Create the final .tar.gz
     log "Creating Docker tar at $FILE_LOCATION/docker.tar.gz"
     cd $FILE_LOCATION && tar czf docker.tar.gz .docker
+
+    log "Pushing credentials tar to S3 Bucket: $S3BUCKET"
+    aws s3 cp docker.tar.gz s3://$S3BUCKET
 
     log "Sleeping for $INTERVAL"
     sleep $INTERVAL
